@@ -198,7 +198,7 @@ assign GPIO_0[PIN_CDDATA] 	= cdr_data; 	// DATA
 assign GPIO_0[PIN_CDCLK] 	= cdr_dat_clk; // BCLK / D15 (2.12M / 4.23)
 assign GPIO_0[PIN_MCLK] 	= SUB_CPU_CLK;	// SUBCPU CLK
 
-assign GPIO_0[PIN_SCOR] = scor;
+assign GPIO_0[PIN_SCOR] = (SOCT_SEL == 1'b0) ? scor : 0; //scor;
 assign sqck 				= GPIO_0[PIN_SQCK];
 
 assign GPIO_0[PIN_SUBQ] = (SOCT_SEL == 1'b0) ? sqso : SOCT_OUT;
@@ -327,18 +327,18 @@ wire SOCT_OUT, SOCT_SEL;
 
 CXD2545_SOCT soct_inst(
 	.sclk(CPU_CLK),
-	.xlat(GPIO_0[PIN_XLAT]),
+	.xlat(REG_XLAT),
 	
-	.PER(8'h01),
+	.PER(8'hff),
 	.C1(3'b000),
 	.C2(3'b000),
 	
 	.FOK(SENS_PIN[5]),
-	.GFS(SENS_PIN[10]),
-	.LOCK(SENS_PIN[10]),
+	.GFS(~c2po),
+	.LOCK(~c2po),
 	.EMPH(1'b0),
 	
-	.clk(sqck),
+	.clk(REG_SQCK),
 	.out(SOCT_OUT),
 );
 

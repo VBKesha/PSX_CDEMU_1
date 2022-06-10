@@ -14,7 +14,7 @@ module CXD2545_SOCT(
 	output reg out
 );
 
-reg [17:0] soct;
+reg [16:0] soct;
 reg prev_xlat;
 reg prev_clk;
 
@@ -37,16 +37,17 @@ end
 
 always @(posedge sclk) begin
 	if((prev_xlat == 1'b1) && (xlat == 1'b0)) begin
-		soct <= {PER[0], PER[1], PER[2], PER[3], PER[4], PER[5], PER[6], PER[7], 
+		soct <= {PER[1], PER[2], PER[3], PER[4], PER[5], PER[6], PER[7], 
 					 C1[2:0], C2[2:0], FOK, GFS, LOCK, EMPH};
-	//end 
-	end else begin
-		if((prev_clk == 1'b1) && (clk == 1'b0)) begin
-			soct <= {soct[16:0], 1'b0};
-		end
+		out <= PER[0];
 	end
 	
-	out <= soct[17];	
+	if((clk == 1'b0) && (prev_clk == 1'b1)) begin
+		soct <= {soct[15:0], 1'b0};
+		out <= soct[16];
+	end
+		
+	//out <= soct[17];
 	prev_clk <= clk;
 	prev_xlat <= xlat;
 
