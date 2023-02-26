@@ -111,10 +111,10 @@ module CXD2545	(
 
 
 //	Turn on all display
-assign	HEX0		=	7'h7f;
+/*assign	HEX0		=	7'h7f;
 assign	HEX1		=	7'h7f;
 assign	HEX2		=	7'h7f;
-assign	HEX3		=	7'h7f;
+assign	HEX3		=	7'h7f;*/
 //assign	LEDG		=	8'h00;
 //assign	LEDR		=	10'h00;
 
@@ -256,6 +256,10 @@ assign LEDR[1] = DSPB;
 assign GPIO_0[PIN_DOOR] = ((door == 1) || (SW[1] == 1)) ? 1'b0 : 1'bz;
 assign LEDG[1] = SW[1];
 
+assign LEDR[9] = SW[9];
+
+assign LEDG[7:4] = ~KEY;
+
 wire sens_out;
 
 wire trc_toggle;
@@ -359,6 +363,11 @@ CXD2545_EMU CXD2545_TS(
      .rxd_to_the_UART_DEBUG         (GPIO_1[29]),
      .txd_from_the_UART_DEBUG       (GPIO_1[31]),
 
+     .out_port_from_the_HEX4              ({1'bz, HEX3, 1'bz, HEX2, 1'bz, HEX1, 1'bz, HEX0}),
+     .in_port_to_the_BUTTONS              (KEY),
+
+
+	  
 	  .in_port_to_the_TRACK_COUNTER			   (track_count),
      .out_port_from_the_CXD2545_CTRL         ({SOCT_SEL, time_check, trc_cnt_en, door, DSPB, TRK0, I2C_CLK, DRAIN_DMA}),
 	  .out_port_from_the_SENS_OUT			   	(SENS_PIN),

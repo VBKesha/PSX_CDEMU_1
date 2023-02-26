@@ -2,6 +2,14 @@
 <system name="CXD2545_EMU">
  <parameter name="bonusData"><![CDATA[bonusData 
 {
+   element BUTTONS
+   {
+      datum _sortIndex
+      {
+         value = "20";
+         type = "int";
+      }
+   }
    element CPU
    {
       datum _sortIndex
@@ -87,6 +95,14 @@
       datum _sortIndex
       {
          value = "18";
+         type = "int";
+      }
+   }
+   element HEX4
+   {
+      datum _sortIndex
+      {
+         value = "19";
          type = "int";
       }
    }
@@ -190,6 +206,62 @@
          type = "String";
       }
    }
+   element HEX4.s1
+   {
+      datum baseAddress
+      {
+         value = "1122304";
+         type = "String";
+      }
+   }
+   element UART_DEBUG.s1
+   {
+      datum baseAddress
+      {
+         value = "1118464";
+         type = "String";
+      }
+   }
+   element BUTTONS.s1
+   {
+      datum baseAddress
+      {
+         value = "1122560";
+         type = "String";
+      }
+   }
+   element TRACK_COUNTER.s1
+   {
+      datum baseAddress
+      {
+         value = "1118512";
+         type = "String";
+      }
+   }
+   element CXD_TRACK_CTRL.s1
+   {
+      datum baseAddress
+      {
+         value = "1118496";
+         type = "String";
+      }
+   }
+   element RAM.s1
+   {
+      datum baseAddress
+      {
+         value = "1081344";
+         type = "String";
+      }
+   }
+   element SENS_OUT.s1
+   {
+      datum baseAddress
+      {
+         value = "1118336";
+         type = "String";
+      }
+   }
    element timer_0.s1
    {
       datum baseAddress
@@ -203,46 +275,6 @@
       datum baseAddress
       {
          value = "1118400";
-         type = "String";
-      }
-   }
-   element UART_DEBUG.s1
-   {
-      datum baseAddress
-      {
-         value = "1118464";
-         type = "String";
-      }
-   }
-   element TRACK_COUNTER.s1
-   {
-      datum baseAddress
-      {
-         value = "1118512";
-         type = "String";
-      }
-   }
-   element RAM.s1
-   {
-      datum baseAddress
-      {
-         value = "1081344";
-         type = "String";
-      }
-   }
-   element CXD_TRACK_CTRL.s1
-   {
-      datum baseAddress
-      {
-         value = "1118496";
-         type = "String";
-      }
-   }
-   element SENS_OUT.s1
-   {
-      datum baseAddress
-      {
-         value = "1118336";
          type = "String";
       }
    }
@@ -289,8 +321,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="CXD2545.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="19053373440" />
- <parameter name="timeStamp" value="1654294321312" />
+ <parameter name="systemHash" value="26973404634" />
+ <parameter name="timeStamp" value="1676585921703" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <module kind="clock_source" version="12.1" enabled="1" name="sys_clk">
   <parameter name="clockFrequency" value="50000000" />
@@ -328,7 +360,7 @@
   <parameter name="blockType" value="AUTO" />
   <parameter name="dataWidth" value="32" />
   <parameter name="deviceFamily" value="Cyclone II" />
-  <parameter name="dualPort" value="false" />
+  <parameter name="dualPort" value="true" />
   <parameter name="initMemContent" value="true" />
   <parameter name="initializationFileName" value="RAM" />
   <parameter name="instanceID" value="NONE" />
@@ -436,7 +468,7 @@
   <parameter name="dcache_numTCDM" value="_0" />
   <parameter name="dcache_lineSize" value="_32" />
   <parameter name="dcache_bursts" value="false" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='RAM.s1' start='0x108000' end='0x10C800' /><slave name='CPU.jtag_debug_module' start='0x110800' end='0x111000' /><slave name='SGDMA_CXD2545_DATA.csr' start='0x111000' end='0x111040' /><slave name='CXD2545_CPU_0.avalon_slave' start='0x111040' end='0x111080' /><slave name='SENS_OUT.s1' start='0x111080' end='0x1110A0' /><slave name='SDCARD_SPI.spi_control_port' start='0x1110A0' end='0x1110C0' /><slave name='CXD2545_CTRL.s1' start='0x1110C0' end='0x1110E0' /><slave name='timer_0.s1' start='0x1110E0' end='0x111100' /><slave name='UART_DEBUG.s1' start='0x111100' end='0x111120' /><slave name='CXD_TRACK_CTRL.s1' start='0x111120' end='0x111130' /><slave name='TRACK_COUNTER.s1' start='0x111130' end='0x111140' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='RAM.s1' start='0x108000' end='0x10C800' /><slave name='CPU.jtag_debug_module' start='0x110800' end='0x111000' /><slave name='SGDMA_CXD2545_DATA.csr' start='0x111000' end='0x111040' /><slave name='CXD2545_CPU_0.avalon_slave' start='0x111040' end='0x111080' /><slave name='SENS_OUT.s1' start='0x111080' end='0x1110A0' /><slave name='SDCARD_SPI.spi_control_port' start='0x1110A0' end='0x1110C0' /><slave name='CXD2545_CTRL.s1' start='0x1110C0' end='0x1110E0' /><slave name='timer_0.s1' start='0x1110E0' end='0x111100' /><slave name='UART_DEBUG.s1' start='0x111100' end='0x111120' /><slave name='CXD_TRACK_CTRL.s1' start='0x111120' end='0x111130' /><slave name='TRACK_COUNTER.s1' start='0x111130' end='0x111140' /><slave name='HEX4.s1' start='0x112000' end='0x112010' /><slave name='BUTTONS.s1' start='0x112100' end='0x112110' /></address-map>]]></parameter>
   <parameter name="dataAddrWidth" value="21" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="cpuReset" value="false" />
@@ -651,6 +683,34 @@
   <parameter name="simDrivenValue" value="0" />
   <parameter name="width" value="16" />
  </module>
+ <module kind="altera_avalon_pio" version="12.1" enabled="1" name="HEX4">
+  <parameter name="bitClearingEdgeCapReg" value="false" />
+  <parameter name="bitModifyingOutReg" value="false" />
+  <parameter name="captureEdge" value="false" />
+  <parameter name="clockRate" value="50000000" />
+  <parameter name="direction" value="Output" />
+  <parameter name="edgeType" value="RISING" />
+  <parameter name="generateIRQ" value="false" />
+  <parameter name="irqType" value="LEVEL" />
+  <parameter name="resetValue" value="0" />
+  <parameter name="simDoTestBenchWiring" value="false" />
+  <parameter name="simDrivenValue" value="0" />
+  <parameter name="width" value="32" />
+ </module>
+ <module kind="altera_avalon_pio" version="12.1" enabled="1" name="BUTTONS">
+  <parameter name="bitClearingEdgeCapReg" value="true" />
+  <parameter name="bitModifyingOutReg" value="false" />
+  <parameter name="captureEdge" value="true" />
+  <parameter name="clockRate" value="50000000" />
+  <parameter name="direction" value="Input" />
+  <parameter name="edgeType" value="FALLING" />
+  <parameter name="generateIRQ" value="false" />
+  <parameter name="irqType" value="LEVEL" />
+  <parameter name="resetValue" value="0" />
+  <parameter name="simDoTestBenchWiring" value="false" />
+  <parameter name="simDrivenValue" value="0" />
+  <parameter name="width" value="4" />
+ </module>
  <connection kind="clock" version="12.1" start="sys_clk.clk" end="UART_DEBUG.clk" />
  <connection kind="clock" version="12.1" start="sys_clk.clk" end="RAM.clk1" />
  <connection kind="clock" version="12.1" start="sys_clk.clk" end="CPU.clk" />
@@ -733,7 +793,6 @@
    version="12.1"
    start="sys_clk.clk"
    end="CXD2545_CPU_0.clock" />
- <connection kind="clock" version="12.1" start="sys_clk.clk" end="SDCARD_SPI.clk" />
  <connection
    kind="avalon"
    version="12.1"
@@ -890,8 +949,20 @@
    kind="avalon"
    version="12.1"
    start="SGDMA_CXD2545_DATA.m_read"
-   end="RAM.s1">
+   end="RAM.s2">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x00108000" />
+  <parameter name="baseAddress" value="0x0000" />
+ </connection>
+ <connection kind="clock" version="12.1" start="sys_clk.clk" end="RAM.clk2" />
+ <connection kind="clock" version="12.1" start="sys_clk.clk" end="HEX4.clk" />
+ <connection kind="avalon" version="12.1" start="CPU.data_master" end="HEX4.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x00112000" />
+ </connection>
+ <connection kind="clock" version="12.1" start="sys_clk.clk" end="SDCARD_SPI.clk" />
+ <connection kind="clock" version="12.1" start="sys_clk.clk" end="BUTTONS.clk" />
+ <connection kind="avalon" version="12.1" start="CPU.data_master" end="BUTTONS.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x00112100" />
  </connection>
 </system>
