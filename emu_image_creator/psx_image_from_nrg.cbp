@@ -11,6 +11,7 @@
 				<Option object_output="obj\Release\" />
 				<Option type="1" />
 				<Option compiler="clang" />
+				<Option parameters='&quot;C:\psx\fsk\fsk.nrg&quot; &quot;Forsaken&quot; &quot;C:\psx\fsk\v8.nrg&quot; &quot;Vigilante 8&quot; &quot;C:\psx\fsk\tekken3.nrg&quot; &quot;Tekken 3&quot; ' />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>

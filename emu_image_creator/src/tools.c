@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
+#include "tools.h"
 
 static const uint8_t msb2lsb[256];
-static const uint8_t scrambler[2352];
+static const uint8_t scrambler[IMAGE_SECTOR_SIZE];
 
 void msb_to_lsb(uint8_t * inout, uint8_t len) {
     uint8_t i;
@@ -11,7 +12,7 @@ void msb_to_lsb(uint8_t * inout, uint8_t len) {
     }
 }
 
-void lba_to_msf(const uint32_t lba, uint8_t * min, uint8_t * sec, uint8_t * frame) {
+void lba_to_msf(uint32_t lba, uint8_t * min, uint8_t * sec, uint8_t * frame) {
     *min = lba / 4500;
     *sec = (lba - (*min * 4500)) / 75;
     *frame = (lba - (*min * 4500)) - *sec * 75;
@@ -28,7 +29,7 @@ uint8_t bcd_to_hex(uint8_t num) {
     return (tens + ones);
 }
 
-void swap_bytes(uint8_t in_sector[2352]) {
+void swap_bytes(uint8_t in_sector[IMAGE_SECTOR_SIZE]) {
     uint32_t i;
     uint8_t t1, t2;
 
@@ -41,7 +42,7 @@ void swap_bytes(uint8_t in_sector[2352]) {
     }
 }
 
-void l2b(uint8_t in_sector[2352]) {
+void l2b(uint8_t in_sector[IMAGE_SECTOR_SIZE]) {
     uint32_t i;
     uint8_t t1, t2, t3, t4;
 
@@ -58,12 +59,12 @@ void l2b(uint8_t in_sector[2352]) {
     }
 }
 
-void print_subq(uint8_t subq[12]) {
+void print_subq(uint8_t subq[IMAGE_SUBQ_SIZE]) {
     printf("[%02X][%02X][%02X][%02X:%02X:%02X][%02X][%02X:%02X:%02X][%02X%02X]",
            subq[0], subq[1], subq[2], subq[3], subq[4], subq[5], subq[6], subq[7], subq[8], subq[9],subq[10],subq[11]);
 }
 
-void gen_subq(uint8_t track_mode, uint8_t track_num, uint32_t abs_sect, uint32_t rel_sect, uint8_t subq[12]) {
+void gen_subq(uint8_t track_mode, uint8_t track_num, uint32_t abs_sect, uint32_t rel_sect, uint8_t subq[IMAGE_SUBQ_SIZE]) {
 
     uint8_t min, sec, frame;
 
@@ -93,10 +94,10 @@ void gen_subq(uint8_t track_mode, uint8_t track_num, uint32_t abs_sect, uint32_t
     subq[11] = ((frame % 2) == 0) ? 0xFF : 0x7F;
 }
 
-void scramb(uint8_t in_sector[2352]) {
+void scramb(uint8_t in_sector[IMAGE_SECTOR_SIZE]) {
     uint32_t i;
 
-    for(i=0; i<2352; i++) {
+    for(i=0; i<IMAGE_SECTOR_SIZE; i++) {
         in_sector[i] =  in_sector[i] ^ scrambler[i];
     }
 }
@@ -120,7 +121,7 @@ static const uint8_t msb2lsb[256] = {
     0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF
 };
 
-static const uint8_t scrambler[2352] = {
+static const uint8_t scrambler[IMAGE_SECTOR_SIZE] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x80, 0x00, 0x60,
     0x00, 0x28, 0x00, 0x1E, 0x80, 0x08, 0x60, 0x06, 0xA8, 0x02, 0xFE, 0x81, 0x80, 0x60, 0x60, 0x28,
     0x28, 0x1E, 0x9E, 0x88, 0x68, 0x66, 0xAE, 0xAA, 0xFC, 0x7F, 0x01, 0xE0, 0x00, 0x48, 0x00, 0x36,

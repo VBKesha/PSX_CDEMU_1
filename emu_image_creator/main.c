@@ -7,8 +7,25 @@
 
 typedef struct toc_struct_t {
     uint8_t items;
-    uint8_t subq[101][12];
+    uint8_t subq[101][IMAGE_SUBQ_SIZE];
 } toc_struct;
+
+typedef struct image_item_t {
+    uint32_t offset;
+    uint32_t lead_out;
+    uint32_t disk_size;
+    char name[20];
+} image_item;
+
+typedef struct image_game_list_t {
+    uint32_t magic;
+    image_item item[73];
+} image_game_list;
+
+typedef union toc_sector_t {
+    image_game_list games;
+    uint8_t raw[2364];
+} toc_sector;
 
 #define SUBQ_CTRL_ADDR  (0)
 #define SUBQ_TNO        (1)
@@ -34,11 +51,7 @@ uint8_t write_tracks(nrg_daox * disk_daox, FILE * read_data, FILE * out_file, ui
 uint8_t write_track_part(uint8_t track, nrg_daox_item * item, uint8_t type, FILE * read_data, FILE * out_file,  uint32_t * abs_pos);
 uint8_t write_leadout(FILE * out_image,  uint32_t * abs_pos);
 
-typedef struct image_header_t {
-    uint32_t offset;
-    uint32_t lead_out;
-    uint32_t disk_size;
-} image_header;
+
 
 int main(int argc, char *argv[]) {
 
@@ -47,9 +60,12 @@ int main(int argc, char *argv[]) {
     uint32_t abs_pos;
     uint32_t img_num;
     uint32_t img_offset;
+    char img_name[21];
 
-    image_header image_toc[197];
-    memset(image_toc, 0, sizeof(image_toc));
+    toc_sector image_toc;
+    printf("Sizeof: %u\r\n",  sizeof(image_toc));
+    memset(image_toc.raw, 0, sizeof(image_toc));
+    image_toc.games.magic=0xAB031337;
 
     if(argc < 2){
         printf("No images select\r\n");
@@ -58,15 +74,17 @@ int main(int argc, char *argv[]) {
 
 
     out_image = fopen("sd_image.img", "wb");
-    fwrite(image_toc, sizeof(image_toc), 1, out_image);
+    fwrite(image_toc.raw, sizeof(image_toc), 1, out_image);
 
     img_offset = 1;
     img_num = 0;
 
-    for(uint8_t i=1; i<argc; i++){
+    for(uint8_t i=1; i<argc; i+=2){
         printf("%d %s\r\n", i, argv[i]);
 
         nrg = fopen(argv[i], "rb"); //695808624
+        memset(img_name, 0, sizeof(img_name));
+        snprintf(img_name, sizeof(img_name), "%s", argv[i+1]);
 
         if(nrg == 0) {
             printf("Cant open file - %s\r\n", "zzt");
@@ -74,8 +92,8 @@ int main(int argc, char *argv[]) {
         }
 
 
-
-        image_toc[img_num].offset = img_offset;
+        memcpy(image_toc.games.item[img_num].name, img_name, sizeof(image_toc.games.item[img_num].name));
+        image_toc.games.item[img_num].offset = img_offset;
         parse_nrg(nrg, &disk_daox);
         generate_toc(&st_toc, &disk_daox);
         printf("Tok Items %d\r\n", st_toc.items);
@@ -86,16 +104,16 @@ int main(int argc, char *argv[]) {
         img_offset += 4500;
         write_tracks(&disk_daox, nrg, out_image, &abs_pos);
 
-        image_toc[img_num].lead_out = img_offset + abs_pos;
+        image_toc.games.item[img_num].lead_out = 4501 + abs_pos;
         write_leadout(out_image, &abs_pos);
 
-        image_toc[img_num].disk_size = img_offset + abs_pos;
+        image_toc.games.item[img_num].disk_size = 4501 + abs_pos;
         img_offset += abs_pos;
         img_num++;
         fclose(nrg);
     }
     fseek(out_image, 0, SEEK_SET);
-    fwrite(image_toc, sizeof(image_toc), 1, out_image);
+    fwrite(image_toc.raw, sizeof(image_toc), 1, out_image);
     fclose(out_image);
 
     return 0;
@@ -121,10 +139,10 @@ uint8_t write_track_part(uint8_t track, nrg_daox_item * item, uint8_t type, FILE
     uint64_t pregap_size;
     uint64_t sector_count;
 
-    uint8_t rm,rs,rf;
-    uint8_t am,as,af;
-    uint8_t subq[12];
-    uint8_t sector[2352];
+    uint8_t rm, rs, rf;
+    uint8_t am, as, af;
+    uint8_t subq[IMAGE_SUBQ_SIZE];
+    uint8_t sector[IMAGE_SECTOR_SIZE];
 
     start_offset = (type == 0) ? item->PreGap_Offset : item->Track_Offset;
     end_offset   = (type == 0) ? item->Track_Offset : item->Next_Track_Offset;
@@ -134,6 +152,8 @@ uint8_t write_track_part(uint8_t track, nrg_daox_item * item, uint8_t type, FILE
 
     fseek(read_data, start_offset, SEEK_SET);
     printf("Sector count: %llu\r\n", start_offset);
+
+    memset(sector, 0, sizeof(sector));
 
     for(uint32_t i=0; i<sector_count; i++) {
         fread(&sector[2352 - item->Sector_Size], item->Sector_Size, 1, read_data);
@@ -184,11 +204,12 @@ uint8_t write_track_part(uint8_t track, nrg_daox_item * item, uint8_t type, FILE
         subq[SUBQ_CRC_L]    = 0xFF;
         subq[SUBQ_CRC_H]    = 0xFF;
 
-        msb_to_lsb(subq, 12);
+        msb_to_lsb(subq, sizeof(subq));
 
         fwrite(sector, sizeof(sector), 1, out_file);
         fwrite(subq, sizeof(subq), 1, out_file);
         (*abs_pos)++;
+        //fread(&sector[2352 - item->Sector_Size], item->Sector_Size, 1, read_data);
     }
 
     return 0;
@@ -197,8 +218,8 @@ uint8_t write_track_part(uint8_t track, nrg_daox_item * item, uint8_t type, FILE
 uint8_t write_leadout(FILE * out_file,  uint32_t * abs_pos) {
     uint8_t rm,rs,rf;
     uint8_t am,as,af;
-    uint8_t subq[12];
-    uint8_t sector[2352];
+    uint8_t subq[IMAGE_SUBQ_SIZE];
+    uint8_t sector[IMAGE_SECTOR_SIZE];
 
     uint16_t i;
     for(i=0; i<6750; i++){
@@ -222,7 +243,7 @@ uint8_t write_leadout(FILE * out_file,  uint32_t * abs_pos) {
         subq[SUBQ_CRC_L]    = 0xFF;
         subq[SUBQ_CRC_H]    = 0xFF;
 
-        msb_to_lsb(subq, 12);
+        msb_to_lsb(subq, sizeof(subq));
 
         fwrite(sector, sizeof(sector), 1, out_file);
         fwrite(subq, sizeof(subq), 1, out_file);
@@ -233,8 +254,8 @@ uint8_t write_leadout(FILE * out_file,  uint32_t * abs_pos) {
 }
 
 uint8_t write_leadin(FILE * out_file, toc_struct * toc) {
-    uint8_t sector[2352];
-    uint8_t subq[12];
+    uint8_t sector[IMAGE_SECTOR_SIZE];
+    uint8_t subq[IMAGE_SUBQ_SIZE];
     uint8_t tok_item;
     uint8_t m, s, f;
     tok_item = st_toc.items;
@@ -255,7 +276,7 @@ uint8_t write_leadin(FILE * out_file, toc_struct * toc) {
         subq[SUBQ_CRC_L]    = 0xFF;
         subq[SUBQ_CRC_H]    = 0xFF;
         fwrite(sector, sizeof(sector), 1, out_file);
-        msb_to_lsb(subq, 12);
+        msb_to_lsb(subq, sizeof(subq));
         fwrite(subq, sizeof(subq), 1, out_file);
     }
     return 0;
